@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function ProgressAnalysisChart({
   items,
@@ -17,9 +17,9 @@ export function ProgressAnalysisChart({
 
         return (
           <div key={item.label} className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-300">{item.label}</span>
-              <span className="font-medium text-white">{item.value}%</span>
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="min-w-0 text-slate-300">{item.label}</span>
+              <span className="shrink-0 font-medium text-white">{item.value}%</span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-white/5">
               <div

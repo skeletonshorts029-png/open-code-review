@@ -187,13 +187,13 @@ export default function ProblemDetailPage() {
               </div>
               <SaveProblemButton problemId={problem.id} />
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
               <ScoreBadge score={problem.demandScore} label="Demand Score" />
               <ScoreBadge score={problem.monetizationScore} label="Monetization Potential" />
               <ScoreBadge score={problem.difficultyScore} label="Difficulty Level" />
               <ScoreBadge score={problem.competitionScore} label="Competition Level" />
             </div>
-            <div className="mt-8 grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+            <div className="mt-8 grid gap-6 2xl:grid-cols-[0.95fr,1.05fr]">
               <BuildynexScoreCard score={problem.buildynexScore} explanation={problem.aiExplanation} />
               <div className="premium-card p-6">
                 <div className="text-sm uppercase tracking-[0.28em] text-slate-500">Visual analysis</div>
@@ -222,7 +222,7 @@ export default function ProblemDetailPage() {
               >
                 Build Startup From This Problem
               </Link>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <Link 
                   href={`/dashboard/roadmap/${problem.id}`} 
                   className="flex items-center justify-center rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-200 transition-all hover:border-sky-500/30 hover:bg-sky-500/10 hover:text-white"
