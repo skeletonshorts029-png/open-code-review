@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
@@ -153,6 +153,7 @@ export function MobileSidebar({
   onClose: () => void;
 }) {
   const { pathname, activeProject, navItems } = useSidebarState();
+  const previousPathname = useRef(pathname);
 
   useEffect(() => {
     if (!open) return;
@@ -164,8 +165,10 @@ export function MobileSidebar({
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    onClose();
+    if (open && previousPathname.current !== pathname) {
+      onClose();
+    }
+    previousPathname.current = pathname;
   }, [pathname, open, onClose]);
 
   return (
