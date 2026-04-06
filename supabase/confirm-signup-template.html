@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#050816;font-family:Arial,Helvetica,sans-serif;color:#f8fafc;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050816;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:linear-gradient(180deg,#0b1120 0%,#070b16 100%);border:1px solid rgba(148,163,184,0.18);border-radius:28px;overflow:hidden;box-shadow:0 24px 60px rgba(2,6,23,0.45);">
+            <tr>
+              <td style="padding:40px 36px 24px 36px;text-align:center;">
+                <div style="display:inline-block;padding:12px 18px;border-radius:999px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.24);color:#7dd3fc;font-size:12px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;">
+                  Buildynex AI
+                </div>
+                <h1 style="margin:24px 0 12px 0;font-size:36px;line-height:1.15;font-weight:800;color:#ffffff;">
+                  Confirm Your Email
+                </h1>
+                <p style="margin:0 auto;max-width:460px;font-size:16px;line-height:1.8;color:#cbd5e1;">
+                  You’re one step away from entering your Buildynex workspace. Confirm your email to continue into your profile setup and start discovering real startup problems.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 36px 0 36px;text-align:center;">
+                <a
+                  href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/onboarding"
+                  style="display:inline-block;padding:18px 36px;border-radius:18px;background:linear-gradient(135deg,#ec4899 0%,#8b5cf6 50%,#0ea5e9 100%);color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.02em;text-decoration:none;box-shadow:0 18px 40px rgba(99,102,241,0.35);"
+                >
+                  Confirm your mail
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 36px 18px 36px;">
+                <div style="border-radius:22px;border:1px solid rgba(148,163,184,0.14);background:rgba(255,255,255,0.04);padding:18px 20px;">
+                  <p style="margin:0;font-size:14px;line-height:1.8;color:#94a3b8;">
+                    If the button does not work, copy and paste this link into your browser:
+                  </p>
+                  <p style="margin:12px 0 0 0;font-size:13px;line-height:1.8;word-break:break-all;color:#7dd3fc;">
+                    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/onboarding
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 36px 36px 36px;text-align:center;">
+                <p style="margin:0;font-size:13px;line-height:1.8;color:#64748b;">
+                  If you didn’t create a Buildynex account, you can ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

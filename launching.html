@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launching Buildynex AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #02040a;
+      --panel: rgba(10, 15, 30, 0.72);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --copy: #94a3b8;
+      --muted: #a5b4fc;
+      --indigo: #6366f1;
+      --violet: #8b5cf6;
+      --cyan: #22d3ee;
+      --sky: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 30%, rgba(99, 102, 241, 0.14), transparent 36%),
+        radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.1), transparent 38%),
+        linear-gradient(135deg, #06081a 0%, #02040a 48%, #04111a 100%);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .mesh-bg {
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 18% 42%, rgba(99, 102, 241, 0.12), transparent 30%),
+        radial-gradient(circle at 78% 20%, rgba(34, 211, 238, 0.08), transparent 30%),
+        radial-gradient(circle at 50% 92%, rgba(56, 189, 248, 0.08), transparent 30%);
+      filter: blur(68px);
+      animation: meshWander 20s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .panel {
+      position: relative;
+      z-index: 1;
+      width: min(92vw, 820px);
+      padding: 40px 42px;
+      border-radius: 34px;
+      background: var(--panel);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow:
+        0 40px 90px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(99, 102, 241, 0.2), transparent 72%);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      top: -90px;
+      right: -50px;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 68%);
+      pointer-events: none;
+    }
+
+    .panel.is-ready {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow:
+        0 48px 100px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(56, 189, 248, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .orbital-loader {
+      position: relative;
+      width: 164px;
+      height: 164px;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .orbital-ambient {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(18px);
+      opacity: 0.84;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .orbital-ambient.one {
+      inset: 18px 24px 54px 24px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.34) 0%, rgba(99, 102, 241, 0) 72%);
+      animation: orbitalFloat 4.6s ease-in-out infinite;
+    }
+
+    .orbital-ambient.two {
+      inset: 50px 26px 18px 42px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.28) 0%, rgba(34, 211, 238, 0) 70%);
+      animation: orbitalFloat 5.2s ease-in-out infinite reverse;
+    }
+
+    .orbital-grid {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.11);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .orbital-grid.grid-one { inset: 0; }
+    .orbital-grid.grid-two { inset: 18px; }
+    .orbital-grid.grid-three { inset: 36px; }
+
+    .orbital-orbit {
+      position: absolute;
+      border-radius: 50%;
+      animation: orbitSpin 5.4s linear infinite;
+      color: var(--sky);
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.16));
+    }
+
+    .orbital-orbit.one {
+      inset: 0;
+      animation-duration: 5.2s;
+      color: var(--sky);
+    }
+
+    .orbital-orbit.two {
+      inset: 18px;
+      animation-name: orbitSpinReverse;
+      animation-duration: 4.5s;
+      color: var(--violet);
+      filter: drop-shadow(0 0 16px rgba(139, 92, 246, 0.15));
+    }
+
+    .orbital-orbit.three {
+      inset: 36px;
+      animation-duration: 3.7s;
+      color: var(--cyan);
+      filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.14));
+    }
+
+    .orbital-arc {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          from 210deg,
+          transparent 0deg 28deg,
+          color-mix(in srgb, currentColor 88%, white 12%) 28deg 76deg,
+          rgba(255, 255, 255, 0.92) 76deg 84deg,
+          transparent 84deg 186deg,
+          color-mix(in srgb, currentColor 68%, white 8%) 186deg 220deg,
+          transparent 220deg 360deg
+        );
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+      opacity: 0.96;
+    }
+
+    .orbital-node {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      background: currentColor;
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, currentColor 18%, transparent),
+        0 0 18px currentColor,
+        0 0 26px color-mix(in srgb, currentColor 70%, white 30%);
+    }
+
+    .orbital-pulse {
+      position: absolute;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      border: 1px solid rgba(99, 102, 241, 0.24);
+      opacity: 0;
+      animation: pulseRing 2.8s ease-out infinite;
+    }
+
+    .orbital-pulse.two {
+      animation-delay: 1.4s;
+      border-color: rgba(34, 211, 238, 0.22);
+    }
+
+    .core-shell {
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-mark {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: linear-gradient(145deg, rgba(18, 25, 53, 0.98), rgba(41, 24, 83, 0.98));
+      box-shadow:
+        0 18px 42px rgba(2, 6, 23, 0.72),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -12px 24px rgba(99, 102, 241, 0.28),
+        0 0 20px rgba(34, 211, 238, 0.16);
+      animation: coreBreathe 3.6s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 62%);
+      border-radius: inherit;
+    }
+
+    .logo-glyph {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 46%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.38));
+    }
+
+    .brand-copy {
+      text-align: center;
+    }
+
+    .logo-wordmark {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      color: rgba(186, 230, 253, 0.86);
+      text-transform: uppercase;
+    }
+
+    .logo-subline {
+      margin-top: 7px;
+      font-size: 10px;
+      line-height: 1.5;
+      color: #64748b;
+      letter-spacing: 0.04em;
+    }
+
+    .copy-side {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.65s ease forwards 0.15s;
+    }
+
+    h1 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.22em;
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      line-height: 1.05;
+      font-weight: 700;
+    }
+
+    .reveal-word {
+      display: inline-block;
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(12px);
+      animation: wordReveal 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .reveal-word:nth-child(1) { animation-delay: 0.28s; }
+    .reveal-word:nth-child(2) { animation-delay: 0.42s; }
+    .reveal-word:nth-child(3) { animation-delay: 0.56s; }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--copy);
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.84s;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.7);
+      animation: dotPulse 1.7s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .progress-track {
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.96s;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--indigo), var(--cyan), var(--sky));
+      background-size: 200% auto;
+      animation:
+        progressSweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 1.05s,
+        progressGlow 1.8s linear infinite;
+    }
+
+    .panel.is-ready .progress-fill {
+      width: 100%;
+      transition: width 180ms ease;
+    }
+
+    @keyframes meshWander {
+      0% { transform: scale(1) translate3d(0, 0, 0); }
+      50% { transform: scale(1.06) translate3d(4%, -4%, 0); }
+      100% { transform: scale(1.1) translate3d(-3%, 5%, 0); }
+    }
+
+    @keyframes orbitalFloat {
+      0%, 100% { transform: scale(0.96) translate3d(0, 0, 0); opacity: 0.62; }
+      50% { transform: scale(1.08) translate3d(0, -4px, 0); opacity: 0.96; }
+    }
+
+    @keyframes orbitSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes orbitSpinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    @keyframes pulseRing {
+      0% {
+        transform: scale(0.62);
+        opacity: 0;
+      }
+      28% {
+        opacity: 0.46;
+      }
+      100% {
+        transform: scale(1.28);
+        opacity: 0;
+      }
+    }
+
+    @keyframes coreBreathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes wordReveal {
+      0% {
+        opacity: 0;
+        filter: blur(14px);
+        transform: translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dotPulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(0.76);
+      }
+    }
+
+    @keyframes progressSweep {
+      0% { width: 0%; }
+      36% { width: 34%; }
+      68% { width: 62%; }
+      100% { width: 88%; }
+    }
+
+    @keyframes progressGlow {
+      from { background-position: 0% 50%; }
+      to { background-position: 200% 50%; }
+    }
+
+    @media (max-width: 760px) {
+      .panel {
+        width: min(94vw, 680px);
+        padding: 28px 24px;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+        gap: 26px;
+        text-align: center;
+      }
+
+      .brand {
+        gap: 16px;
+      }
+
+      .orbital-loader {
+        width: 148px;
+        height: 148px;
+      }
+
+      .status-row {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="mesh-bg"></div>
+
+  <main class="panel" id="launch-panel">
+    <div class="content">
+      <section class="brand" aria-hidden="true">
+        <div class="orbital-loader">
+          <div class="orbital-ambient one"></div>
+          <div class="orbital-ambient two"></div>
+          <div class="orbital-grid grid-one"></div>
+          <div class="orbital-grid grid-two"></div>
+          <div class="orbital-grid grid-three"></div>
+
+          <div class="orbital-orbit one">
+            <span class="orbital-arc"></span>
+            <span class="orbital-node"></span>
+          </div>
+          <div class="orbital-orbit two">
+            <span class="orbital-arc"></span>
+            <span class="orbital-node"></span>
+          </div>
+          <div class="orbital-orbit three">
+            <span class="orbital-arc"></span>
+            <span class="orbital-node"></span>
+          </div>
+
+          <div class="orbital-pulse one"></div>
+          <div class="orbital-pulse two"></div>
+
+          <div class="core-shell">
+            <div class="logo-mark">
+              <span class="logo-glyph">BN</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-copy">
+          <div class="logo-wordmark">BUILDYNEX AI</div>
+          <div class="logo-subline">Problem-first startup intelligence</div>
+        </div>
+      </section>
+
+      <section class="copy-side">
+        <div class="eyebrow">Launching Buildynex AI</div>
+        <h1>
+          <span class="reveal-word">Opening</span>
+          <span class="reveal-word">your</span>
+          <span class="reveal-word">workspace.</span>
+        </h1>
+
+        <div class="status-row">
+          <span class="status-dot"></span>
+          <span id="status-label">Verifying session...</span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const appUrl = "http://localhost:3005";
+    const panel = document.getElementById("launch-panel");
+    const statusLabel = document.getElementById("status-label");
+    let redirected = false;
+    let phaseIndex = 0;
+
+    const phases = [
+      "Verifying session...",
+      "Hydrating workspace context...",
+      "Warming up your startup engine...",
+      "Ready - entering dashboard..."
+    ];
+
+    function updatePhase(nextIndex) {
+      phaseIndex = nextIndex;
+      statusLabel.style.opacity = "0";
+
+      window.setTimeout(() => {
+        statusLabel.textContent = phases[phaseIndex];
+        statusLabel.style.transition = "opacity 180ms ease";
+        statusLabel.style.opacity = "1";
+      }, 150);
+    }
+
+    window.setTimeout(() => updatePhase(1), 1800);
+    window.setTimeout(() => updatePhase(2), 3600);
+
+    async function probe() {
+      if (redirected) {
+        return;
+      }
+
+      try {
+        await fetch(appUrl, { mode: "no-cors", cache: "no-store" });
+        redirected = true;
+        updatePhase(phases.length - 1);
+        panel.classList.add("is-ready");
+        window.setTimeout(() => {
+          window.location.replace(appUrl);
+        }, 260);
+      } catch (error) {
+        window.setTimeout(probe, 900);
+      }
+    }
+
+    probe();
+  </script>
+</body>
+</html>

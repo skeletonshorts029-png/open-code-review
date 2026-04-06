@@ -1,0 +1,17 @@
+
+> buildynex-ai@0.1.0 dev
+> next dev --port 3005
+
+   ▲ Next.js 15.5.14
+   - Local:        http://localhost:3005
+   - Network:      http://192.168.56.1:3005
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 7.2s
+ ○ Compiling / ...
+ ✓ Compiled /signup in 31s (807 modules)
+ GET / 200 in 11041ms
+ GET /signup 200 in 11091ms
+ GET / 200 in 34623ms
+[?25h
