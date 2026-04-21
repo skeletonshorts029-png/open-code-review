@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (!best) {
       return NextResponse.json(
-        { error: "The AI ensemble could not produce a usable full project from that idea." },
+        { error: "The focused AI stack could not produce a usable full project from that idea." },
         { status: 500 }
       );
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       problem: best.result.problem,
       bundle: best.result.bundle,
       goalsData: best.result.goalsData,
-      model: "AI Ensemble",
+      model: "Focused AI stack",
       mode: aiMode,
       bestModel: best.model,
       contributingModels: completion.successes.map((result) => result.model),

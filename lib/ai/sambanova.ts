@@ -139,64 +139,50 @@ export async function createSambaNovaEnsembleChatCompletions({
   const successes: Array<{ model: string; ok: true; payload: ChatCompletionsResponse }> = [];
   const failures: Array<{ model: string; ok: false; error: string; retryable: boolean }> = [];
 
-  await new Promise<void>((resolve) => {
-    let settledCount = 0;
-    let finished = false;
-
-    const maybeFinish = () => {
-      if (finished) return;
-      if (successes.length >= targetSuccesses || settledCount >= orderedModels.length) {
-        finished = true;
-        resolve();
-      }
-    };
-
-    orderedModels.forEach((model) => {
-      requestSambaNovaModel({
+  for (const model of orderedModels) {
+    try {
+      const { response, payload } = await requestSambaNovaModel({
         apiKey,
         model,
         messages,
         temperature,
         timeoutMs,
-      })
-        .then(({ response, payload }) => {
-          if (response.ok) {
-            successes.push({
-              model,
-              ok: true,
-              payload: payload || {},
-            });
-          } else {
-            const message = extractErrorMessage(payload, `SambaNova request failed with status ${response.status}.`);
-            failures.push({
-              model,
-              ok: false,
-              error: message,
-              retryable: isRetryableSambaNovaFailure(response.status, message),
-            });
-          }
-        })
-        .catch((error) => {
-          failures.push({
-            model,
-            ok: false,
-            error: error instanceof Error ? error.message : "Unknown SambaNova request failure.",
-            retryable: true,
-          });
-        })
-        .finally(() => {
-          settledCount += 1;
-          maybeFinish();
-        });
-    });
+      });
 
-    setTimeout(() => {
-      if (!finished) {
-        finished = true;
-        resolve();
+      if (response.ok) {
+        successes.push({
+          model,
+          ok: true,
+          payload: payload || {},
+        });
+
+        if (successes.length >= targetSuccesses) {
+          break;
+        }
+
+        continue;
       }
-    }, timeoutMs + 250);
-  });
+
+      const message = extractErrorMessage(payload, `SambaNova request failed with status ${response.status}.`);
+      failures.push({
+        model,
+        ok: false,
+        error: message,
+        retryable: isRetryableSambaNovaFailure(response.status, message),
+      });
+
+      if (!isRetryableSambaNovaFailure(response.status, message)) {
+        break;
+      }
+    } catch (error) {
+      failures.push({
+        model,
+        ok: false,
+        error: error instanceof Error ? error.message : "Unknown SambaNova request failure.",
+        retryable: true,
+      });
+    }
+  }
 
   return {
     attemptedModels: orderedModels,

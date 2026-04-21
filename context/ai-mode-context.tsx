@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { AiMode, getAiModeMeta, normalizeAiMode } from "@/lib/ai/ai-mode";
 
 type AiModeContextValue = {
@@ -11,26 +11,11 @@ type AiModeContextValue = {
   helper: string;
 };
 
-const AI_MODE_STORAGE_KEY = "buildynex:ai-mode";
-
 const AiModeContext = createContext<AiModeContextValue | null>(null);
 
 export function AiModeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<AiMode>("balanced");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(AI_MODE_STORAGE_KEY);
-      if (stored) {
-        setModeState(normalizeAiMode(stored));
-      }
-    } catch {
-      // Ignore localStorage failures and keep the default mode.
-    } finally {
-      setMounted(true);
-    }
-  }, []);
+  const mode: AiMode = normalizeAiMode("balanced");
+  const mounted = true;
 
   const value = useMemo<AiModeContextValue>(() => {
     const meta = getAiModeMeta(mode);
@@ -39,13 +24,8 @@ export function AiModeProvider({ children }: { children: React.ReactNode }) {
       mounted,
       label: meta.label,
       helper: meta.helper,
-      setMode: (nextMode: AiMode) => {
-        setModeState(nextMode);
-        try {
-          window.localStorage.setItem(AI_MODE_STORAGE_KEY, nextMode);
-        } catch {
-          // Ignore localStorage failures and keep the in-memory selection.
-        }
+      setMode: () => {
+        // Buildynex now keeps a single optimized AI profile.
       },
     };
   }, [mode, mounted]);

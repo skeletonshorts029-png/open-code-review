@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAiMode } from "@/context/ai-mode-context";
 import { AiMode } from "@/lib/ai/ai-mode";
 import { ProblemRecord, RoadmapStep, UserRole } from "@/lib/types";
 
@@ -37,7 +36,6 @@ export function RoadmapExecutionTracker({
   role,
   onStepPatch,
   reviewMode,
-  reviewModeLabel,
   autoOpenFirstPending,
 }: {
   steps: RoadmapStep[];
@@ -45,12 +43,9 @@ export function RoadmapExecutionTracker({
   role: UserRole;
   onStepPatch: (phase: string, patch: Partial<RoadmapStep>) => void;
   reviewMode?: AiMode;
-  reviewModeLabel?: string;
   autoOpenFirstPending?: boolean;
 }) {
-  const { mode, label } = useAiMode();
-  const effectiveMode = reviewMode || mode;
-  const effectiveLabel = reviewModeLabel || label;
+  const effectiveMode = reviewMode || "balanced";
   const [openPhase, setOpenPhase] = useState<string | null>(null);
   const [submittingPhase, setSubmittingPhase] = useState<string | null>(null);
   const [phaseErrors, setPhaseErrors] = useState<Record<string, string>>({});
@@ -112,8 +107,8 @@ export function RoadmapExecutionTracker({
       setPhaseErrors((current) => ({
         ...current,
         [step.phase]: data.model
-          ? `Reviewed in ${effectiveLabel} mode with ${data.model}. The graph and goals are now updated.`
-          : `Reviewed in ${effectiveLabel} mode. The graph and goals are now updated.`,
+          ? `Reviewed with ${data.model}. The graph and goals are now updated.`
+          : `Reviewed successfully. The graph and goals are now updated.`,
       }));
       setOpenPhase(null);
     } catch (error) {
@@ -287,9 +282,9 @@ export function RoadmapExecutionTracker({
                     />
                   </label>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-slate-300">
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500">AI mode</div>
+                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500">AI review</div>
                     <div className="mt-3">
-                      Buildynex will review this in <span className="font-semibold text-white">{effectiveLabel}</span> mode before it is counted as completed.
+                      Buildynex will review this with its focused AI stack before it is counted as completed.
                     </div>
                   </div>
                   <label className="space-y-2 text-sm text-slate-300 lg:col-span-2">

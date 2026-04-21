@@ -3,6 +3,7 @@ import { extractJsonString } from "@/lib/ai/problem-generation";
 import {
   buildLogoGenerationPrompt,
   createFallbackLogoConcepts,
+  detectLogoDomain,
   mergeAndRankLogoConcepts,
   normalizeGeneratedLogoConcepts,
 } from "@/lib/ai/logo-generation";
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
       selectedName: input.selectedName,
       generationNonce: input.generationNonce,
     };
+    const domain = detectLogoDomain(input.problem, input.selectedName, input.branding);
 
     const candidateConcepts = completion.successes.flatMap((result) => {
       try {
@@ -84,15 +86,17 @@ export async function POST(request: NextRequest) {
         return [];
       }
     });
+    const fallbackConcepts = createFallbackLogoConcepts(generationInput);
 
     const concepts = mergeAndRankLogoConcepts(
-      candidateConcepts.length ? candidateConcepts : createFallbackLogoConcepts(generationInput),
-      input.selectedName
+      candidateConcepts.length ? [...candidateConcepts, ...fallbackConcepts] : fallbackConcepts,
+      input.selectedName,
+      domain
     );
 
     return NextResponse.json({
       concepts,
-      model: "AI Ensemble",
+      model: "Focused AI stack",
       mode: aiMode,
       contributingModels: completion.successes.map((result) => result.model),
       attemptedModels: completion.attemptedModels,

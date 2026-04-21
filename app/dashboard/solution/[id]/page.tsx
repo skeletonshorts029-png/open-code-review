@@ -19,7 +19,7 @@ import { GeneratedProjectBundle, ProblemRecord, ProjectRecord } from "@/lib/type
 export default function SolutionPage() {
   const params = useParams<{ id: string }>();
   const { profile, user } = useAuth();
-  const { label, mode } = useAiMode();
+  const { mode } = useAiMode();
   const [problem, setProblem] = useState<ProblemRecord | null>(null);
   const [project, setProject] = useState<ProjectRecord | null>(null);
   const [bundle, setBundle] = useState<GeneratedProjectBundle | null>(null);
@@ -159,7 +159,6 @@ export default function SolutionPage() {
       <WorkflowSteps workspaceId={workspaceId || problem.id} currentStep="solution" />
       <div className="mb-8 flex flex-wrap gap-3">
         <Pill tone="info">{role} mode</Pill>
-        <Pill tone="info">{label} AI mode</Pill>
         <Pill tone="success">AI-generated startup plan</Pill>
         <Pill tone="warning">{problem.sector}</Pill>
         {project?.projectName ? <Pill tone="info">Active: {project.projectName}</Pill> : null}

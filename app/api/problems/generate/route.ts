@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       problems,
-      model: "AI Ensemble",
+      model: "Focused AI stack",
       mode: aiMode,
       contributingModels: completion.successes.map((result) => result.model),
       attemptedModels: completion.attemptedModels,

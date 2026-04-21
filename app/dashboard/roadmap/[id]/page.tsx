@@ -21,7 +21,7 @@ import { GeneratedProjectBundle, ProblemRecord, ProjectRecord } from "@/lib/type
 export default function RoadmapPage() {
   const params = useParams<{ id: string }>();
   const { profile, user } = useAuth();
-  const { label, mode } = useAiMode();
+  const { mode } = useAiMode();
   const [problem, setProblem] = useState<ProblemRecord | null>(null);
   const [project, setProject] = useState<ProjectRecord | null>(null);
   const [bundle, setBundle] = useState<GeneratedProjectBundle | null>(null);
@@ -188,7 +188,6 @@ export default function RoadmapPage() {
       <WorkflowSteps workspaceId={workspaceId || problem.id} currentStep="roadmap" />
       <div className="mb-8 flex flex-wrap gap-3">
         <Pill tone="info">{role}</Pill>
-        <Pill tone="info">{label} AI mode</Pill>
         <Pill tone="success">AI-generated roadmap</Pill>
         <Pill tone="warning">Timeline from research to growth</Pill>
         <Pill tone="info">Focus, proof points, and risk watch included</Pill>

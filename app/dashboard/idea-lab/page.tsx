@@ -25,7 +25,7 @@ interface IdeaProjectResponse {
 
 export default function IdeaLabPage() {
   const { profile } = useAuth();
-  const { mode, label } = useAiMode();
+  const { mode } = useAiMode();
   const [ideaPrompt, setIdeaPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [problem, setProblem] = useState<ProblemRecord | null>(null);
@@ -78,12 +78,12 @@ export default function IdeaLabPage() {
         await upsertProblems([data.problem]);
         setSynced(true);
         setMessage(
-          `Generated a full AI project in ${label} mode${data.model ? ` with ${data.model}` : ""} and synced the problem so you can keep working through Startup Plan, Roadmap, and Brand Studio.`
+          `Generated a full AI project${data.model ? ` with ${data.model}` : ""} and synced the problem so you can keep working through Startup Plan, Roadmap, and Brand Studio.`
         );
       } catch {
         setSynced(false);
         setMessage(
-          `Generated a full AI project in ${label} mode${data.model ? ` with ${data.model}` : ""}. The project is ready here, but syncing the problem to Supabase needs another try before the workflow pages can open.`
+          `Generated a full AI project${data.model ? ` with ${data.model}` : ""}. The project is ready here, but syncing the problem to Supabase needs another try before the workflow pages can open.`
         );
       }
     } catch (generationError) {
@@ -124,7 +124,6 @@ export default function IdeaLabPage() {
 
         <div className="mt-5 flex flex-wrap gap-2">
           <Pill tone="info">{profile?.role || "Founder"} lens</Pill>
-          <Pill tone="info">{label} AI mode</Pill>
           <Pill tone="warning">{profile?.sector || "Cross-sector"} context</Pill>
           <Pill tone="success">{"Problem -> Startup Plan -> Roadmap -> Brand -> Goals"}</Pill>
         </div>

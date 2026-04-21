@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pill } from "@/components/ui/pill";
 import { SkeletonBlock } from "@/components/ui/skeleton-block";
-import { useAiMode } from "@/context/ai-mode-context";
 import { useAuth } from "@/context/auth-context";
+import { normalizeAiMode } from "@/lib/ai/ai-mode";
 import { getActiveProjectId, mergeProjectWithStoredRoadmap, setActiveProjectId, setStoredRoadmap } from "@/lib/projects/project-session";
 import { getProjects } from "@/lib/supabase/database";
 import { GoalProgressData, GoalProgressPoint, ProjectRecord, WebsiteScoreData } from "@/lib/types";
@@ -111,7 +111,7 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 
 export default function GoalsPage() {
   const { user, backendReady } = useAuth();
-  const { mode, label } = useAiMode();
+  const mode = normalizeAiMode("balanced");
   const searchParams = useSearchParams();
   const requestedProject = searchParams.get("project");
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
@@ -215,7 +215,7 @@ export default function GoalsPage() {
 
       setWebsiteScore(data.score);
       setWebsiteMessage(
-        `Website reviewed in ${label} mode${data.model ? ` with ${data.model}` : ""}${data.pageTitle ? `: ${data.pageTitle}` : ""}.`
+        `Website reviewed${data.model ? ` with ${data.model}` : ""}${data.pageTitle ? `: ${data.pageTitle}` : ""}.`
       );
     } catch (error) {
       setWebsiteScore(null);
@@ -260,7 +260,6 @@ export default function GoalsPage() {
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Pill tone="info">{displayProject.sector}</Pill>
-              <Pill tone="info">{label} AI mode</Pill>
               <Pill tone="warning">{displayProject.progressStatus}</Pill>
             </div>
           </div>
@@ -275,7 +274,7 @@ export default function GoalsPage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-fuchsia-300/15 bg-fuchsia-500/10 px-4 py-3 text-sm text-fuchsia-100">
-                Reviews run in <span className="font-semibold text-white">Max Quality</span> mode here
+                Reviews use Buildynex&apos;s focused AI review stack here
               </div>
             </div>
           </div>
@@ -310,8 +309,6 @@ export default function GoalsPage() {
             }}
             role={displayProject.role}
             onStepPatch={patchTrackedStep}
-            reviewMode="max"
-            reviewModeLabel="Max Quality"
             autoOpenFirstPending
           />
 

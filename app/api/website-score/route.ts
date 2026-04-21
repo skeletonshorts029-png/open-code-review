@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     if (!candidates.length) {
       return NextResponse.json(
-        { error: "The AI ensemble could not produce a usable website review right now." },
+        { error: "The focused AI stack could not produce a usable website review right now." },
         { status: 500 }
       );
     }
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       score: best.score,
-      model: "AI Ensemble",
+      model: "Focused AI stack",
       mode: aiMode,
       bestModel: best.model,
       pageTitle,

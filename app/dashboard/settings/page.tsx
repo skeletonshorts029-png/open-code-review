@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { SettingsPanel } from "@/components/dashboard/settings-panel";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { AiModeSwitch } from "@/components/shared/ai-mode-switch";
 import { useTheme } from "@/components/theme/theme-provider";
 import { useAuth } from "@/context/auth-context";
 import { sendResetLink } from "@/lib/supabase/auth";
@@ -143,8 +142,10 @@ export default function SettingsPage() {
           </div>
         </SettingsPanel>
 
-        <SettingsPanel title="AI Mode" copy="Choose how Buildynex's AI reviews your work. Balanced is the default. Explorer mode is more forgiving. Strict mode demands real evidence.">
-          <AiModeSwitch />
+        <SettingsPanel title="AI engine" copy="Buildynex now uses a focused AI stack automatically so Brand Studio, Startup Plan, and Goals respond faster.">
+          <p className="text-sm leading-7 text-slate-300">
+            We now run one primary SambaNova model with one fast fallback in the background. There is no manual mode switch anymore.
+          </p>
         </SettingsPanel>
 
         <SettingsPanel title="Theme" copy="Switch between dark, light, or system mode. The workspace updates instantly and saves with your profile.">

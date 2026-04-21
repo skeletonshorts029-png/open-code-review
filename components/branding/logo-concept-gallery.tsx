@@ -64,7 +64,7 @@ export function LogoConceptGallery({
   problem: ProblemRecord;
   projectId?: string;
 }) {
-  const { mode, label } = useAiMode();
+  const { mode } = useAiMode();
   const [selectedName, setSelectedName] = useState(branding.nameIdeas[0] || problem.sector);
   const [concepts, setConcepts] = useState<LogoConceptRecord[]>([]);
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
@@ -177,13 +177,13 @@ export function LogoConceptGallery({
             <div className="text-sm uppercase tracking-[0.24em] text-slate-500">Live AI logo generation</div>
             <h2 className="mt-3 text-2xl font-semibold text-white">Fresh logo concepts for every brand name you choose</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-              You now get instant logo concepts immediately, then Buildynex refines them with the AI model ensemble in the background.
+              You now get instant logo concepts immediately, then Buildynex refreshes them with a focused AI pass in the background.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             {modelInfo.model ? (
               <div className="rounded-2xl border border-sky-300/15 bg-sky-400/10 px-4 py-3 text-sm text-sky-100">
-                {label} mode: <span className="font-semibold text-white">{modelInfo.model}</span>
+                Latest AI model: <span className="font-semibold text-white">{modelInfo.model}</span>
               </div>
             ) : null}
             <Button onClick={() => setGenerationKey((value) => value + 1)} showArrow={false}>
@@ -198,7 +198,7 @@ export function LogoConceptGallery({
               ? "border-sky-300/25 bg-sky-400/10 text-sky-100"
               : "border-white/10 bg-white/[0.03] text-slate-400"
           )}>
-            {isRefreshing ? `Refining with ${label} AI ensemble...` : `${label} mode ready`}
+            {isRefreshing ? "Refreshing with AI..." : "AI set ready"}
           </div>
         </div>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
@@ -228,7 +228,10 @@ export function LogoConceptGallery({
 
       {error ? (
         <div className="rounded-[28px] border border-rose-300/20 bg-rose-400/10 p-5 text-sm leading-7 text-rose-100">
-          {error}
+          <div className="font-semibold text-white">Logo generation issue</div>
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-xs leading-6 text-rose-100">
+            {error}
+          </pre>
         </div>
       ) : null}
 
@@ -319,13 +322,13 @@ export function LogoConceptGallery({
           </p>
           {modelInfo.attemptedModels?.length ? (
             <div className="mt-5 rounded-3xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-7 text-slate-300">
-              <strong className="text-white">Model ensemble:</strong>{" "}
+              <strong className="text-white">AI request path:</strong>{" "}
               {(modelInfo.contributingModels?.length ? modelInfo.contributingModels : modelInfo.attemptedModels).join(" + ")}
             </div>
           ) : null}
           {modelInfo.failures?.length ? (
             <div className="mt-4 rounded-3xl border border-amber-300/15 bg-amber-400/10 p-4 text-sm leading-7 text-amber-100">
-              Some models were unavailable, so Buildynex used the strongest successful outputs.
+              The primary AI path needed a fallback, so Buildynex used the strongest successful result.
             </div>
           ) : null}
         </div>
