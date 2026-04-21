@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { extractJsonString } from "@/lib/ai/problem-generation";
 import {
   buildIdeaProjectPrompt,
+  createFallbackIdeaProject,
   normalizeGeneratedIdeaProject,
   scoreGeneratedIdeaProject,
 } from "@/lib/ai/idea-project";
@@ -19,6 +20,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  let payload: GenerateIdeaProjectRequest | null = null;
+
   try {
     const apiKey = process.env.SAMBANOVA_API_KEY;
     if (!apiKey) {
@@ -28,15 +31,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const payload = (await request.json()) as GenerateIdeaProjectRequest;
+    payload = (await request.json()) as GenerateIdeaProjectRequest;
     if (!payload.ideaPrompt?.trim()) {
       return NextResponse.json(
         { error: "Add your startup idea prompt first so Buildynex can generate the full project." },
         { status: 400 }
       );
     }
-    const ideaPrompt = payload.ideaPrompt.trim();
-    const aiMode = normalizeAiMode(payload.aiMode);
+    const requestPayload = payload;
+    const ideaPrompt = requestPayload.ideaPrompt!.trim();
+    const aiMode = normalizeAiMode(requestPayload.aiMode);
     const preferredModel = process.env.SAMBANOVA_MODEL || "gpt-oss-120b";
     const ensembleConfig = getAiModeEnsembleConfig(aiMode, "ideaProject", preferredModel);
 
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
           role: "user",
           content: buildIdeaProjectPrompt({
             ideaPrompt,
-            profile: payload.profile,
+            profile: requestPayload.profile,
           }),
         },
       ],
@@ -68,7 +72,7 @@ export async function POST(request: NextRequest) {
         const parsed = JSON.parse(jsonString);
         const normalized = normalizeGeneratedIdeaProject(parsed, {
           ideaPrompt,
-          profile: payload.profile,
+          profile: requestPayload.profile,
         });
         return [{ result: normalized, model: result.model }];
       } catch {
@@ -81,10 +85,21 @@ export async function POST(request: NextRequest) {
     )[0];
 
     if (!best) {
-      return NextResponse.json(
-        { error: "The focused AI stack could not produce a usable full project from that idea." },
-        { status: 500 }
-      );
+      const fallback = createFallbackIdeaProject({
+        ideaPrompt,
+        profile: requestPayload.profile,
+      });
+
+      return NextResponse.json({
+        problem: fallback.problem,
+        bundle: fallback.bundle,
+        goalsData: fallback.goalsData,
+        model: "Buildynex fallback",
+        mode: aiMode,
+        attemptedModels: completion.attemptedModels,
+        failures: completion.failures.map((failure) => `${failure.model}: ${failure.error}`),
+        warning: "The focused AI stack did not return clean project JSON, so Buildynex built a local fallback project from your idea.",
+      });
     }
 
     return NextResponse.json({
@@ -98,6 +113,25 @@ export async function POST(request: NextRequest) {
       attemptedModels: completion.attemptedModels,
     });
   } catch (error) {
+    if (payload?.ideaPrompt?.trim()) {
+      const fallback = createFallbackIdeaProject({
+        ideaPrompt: payload.ideaPrompt.trim(),
+        profile: payload.profile,
+      });
+
+      return NextResponse.json({
+        problem: fallback.problem,
+        bundle: fallback.bundle,
+        goalsData: fallback.goalsData,
+        model: "Buildynex fallback",
+        mode: normalizeAiMode(payload.aiMode),
+        warning:
+          error instanceof Error
+            ? error.message
+            : "Buildynex used a local fallback project because the live AI request failed.",
+      });
+    }
+
     const message = error instanceof Error ? error.message : "Failed to generate the AI idea project.";
     return NextResponse.json({ error: message }, { status: 500 });
   }

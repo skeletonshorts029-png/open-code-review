@@ -11,6 +11,16 @@ interface NormalizeIdeaProjectInput {
   ideaPrompt: string;
 }
 
+function slugify(value: string) {
+  const slug = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90);
+
+  return slug || `idea-${Date.now()}`;
+}
+
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" ? value.trim() : fallback;
 }
@@ -34,6 +44,53 @@ function clamp(value: unknown, fallback: number, min = 0, max = 100) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
   return Math.max(min, Math.min(max, Math.round(numeric)));
+}
+
+function deriveSector(ideaPrompt: string, profile?: Partial<UserProfile>) {
+  if (profile?.sector?.trim()) return profile.sector.trim();
+
+  const prompt = ideaPrompt.toLowerCase();
+  if (/(student|school|college|campus|tuition|exam|learning|education)/.test(prompt)) return "Education";
+  if (/(food|restaurant|kitchen|mess|meal|vendor|delivery|cafe)/.test(prompt)) return "Food Service";
+  if (/(health|clinic|patient|hospital|doctor|medical|wellness)/.test(prompt)) return "Healthcare";
+  if (/(logistics|shipment|warehouse|dispatch|transport|fleet)/.test(prompt)) return "Logistics";
+  if (/(factory|manufacturing|plant|industrial|machine|production)/.test(prompt)) return "Manufacturing";
+  if (/(fintech|payment|bank|loan|credit|invoice)/.test(prompt)) return "Fintech";
+  if (/(property|housing|rent|broker|real estate)/.test(prompt)) return "Real Estate";
+  return "Enterprise AI";
+}
+
+function deriveProblemTitle(ideaPrompt: string, sector: string) {
+  const cleaned = ideaPrompt
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.?!].*$/, "")
+    .slice(0, 72);
+
+  if (cleaned.length >= 24) {
+    return cleaned;
+  }
+
+  return `Inefficient ${sector.toLowerCase()} workflow coordination`;
+}
+
+function deriveTargetUsers(sector: string, role?: string) {
+  const roleHint = role || "Founder";
+
+  switch (sector) {
+    case "Education":
+      return ["Students", "College operators", "Academic coordinators", roleHint];
+    case "Food Service":
+      return ["Food vendors", "Kitchen operators", "Restaurant managers", roleHint];
+    case "Healthcare":
+      return ["Patients", "Clinic operators", "Care coordinators", roleHint];
+    case "Logistics":
+      return ["Dispatch teams", "Fleet operators", "Warehouse managers", roleHint];
+    case "Manufacturing":
+      return ["Factory supervisors", "Production planners", "Operations teams", roleHint];
+    default:
+      return ["Operators", "Managers", "Buyers", roleHint];
+  }
 }
 
 function normalizeGoalsData(raw: unknown, problem: ProblemRecord): GoalProgressData {
@@ -158,6 +215,72 @@ export function normalizeGeneratedIdeaProject(
 
   return {
     problem: generatedProblem,
+    bundle,
+    goalsData,
+  };
+}
+
+export function createFallbackIdeaProject(input: NormalizeIdeaProjectInput) {
+  const sector = deriveSector(input.ideaPrompt, input.profile);
+  const title = deriveProblemTitle(input.ideaPrompt, sector);
+  const targetUsers = deriveTargetUsers(sector, input.profile?.role);
+  const role = input.profile?.role || "Founder";
+
+  const fallbackProblem: ProblemRecord = {
+    id: slugify(`${sector}-${title}`),
+    title,
+    description: `Teams dealing with ${title.toLowerCase()} still rely on manual coordination, fragmented tools, and reactive decisions, which slows execution and creates avoidable waste.`,
+    affectedUsers: targetUsers.join(", "),
+    sector,
+    realWorldContext: `This pain appears in live operating environments where ${targetUsers[0].toLowerCase()} need faster coordination, clearer visibility, and fewer manual handoffs.`,
+    painLevel: 8,
+    frequency: "Weekly and operationally recurring",
+    willingnessToPay: "High",
+    severity: "High",
+    demandScore: 78,
+    monetizationScore: 74,
+    difficultyScore: 54,
+    competitionScore: 46,
+    buildynexScore: 79,
+    aiExplanation: "The idea points to a credible operational pain with enough urgency and monetization potential to justify a lean first startup direction.",
+    existingSolutions: "Teams usually patch this with spreadsheets, chat tools, or generic SaaS workflows that create visibility but do not remove the core bottleneck.",
+    gapOpportunity: "There is room for a focused product that removes the painful decision step instead of adding another passive dashboard.",
+    aiSolutionPotential: "AI can reduce triage time, recommend next actions, surface risk early, and personalize execution flows based on real usage signals.",
+    opportunityTag: "Infrastructure Gap",
+    whyItExists: "The workflow still depends on fragmented tools, unclear ownership, and manual follow-up that breaks as complexity rises.",
+    painPoints: [
+      "Manual coordination slows execution and introduces avoidable delays.",
+      "Teams lack a clean way to prioritize the highest-value next action.",
+      "Existing tools report on the problem without solving the operating bottleneck.",
+      "The pain becomes more expensive as scale and complexity increase.",
+    ],
+    marketNeedSummary: `Buyers in ${sector.toLowerCase()} need a faster, clearer, and more reliable way to solve this workflow pain without replacing their entire stack.`,
+    targetUsers,
+    serviceBusinessIdeas: [
+      `Implementation and workflow optimization service for ${sector.toLowerCase()} teams handling ${title.toLowerCase()}.`,
+      `Managed operations support layer that improves execution quality around ${title.toLowerCase()}.`,
+      "Advisory plus analytics offering for teams trying to remove manual coordination waste.",
+    ],
+    physicalProductIdeas: [
+      `Operational hardware add-on that captures workflow state earlier in the ${sector.toLowerCase()} process.`,
+      "Sensor or kiosk-based touchpoint that reduces manual updates and creates cleaner live visibility.",
+      "Compact field device or physical system that helps teams confirm status and next actions faster.",
+    ],
+    recommendationFor: [role, "Founder"].filter((value, index, array) => array.indexOf(value) === index) as ProblemRecord["recommendationFor"],
+  };
+
+  const bundle = normalizeGeneratedProjectBundle(
+    {},
+    {
+      problem: fallbackProblem,
+      profile: input.profile,
+    }
+  );
+
+  const goalsData = normalizeGoalsData({}, fallbackProblem);
+
+  return {
+    problem: fallbackProblem,
     bundle,
     goalsData,
   };
